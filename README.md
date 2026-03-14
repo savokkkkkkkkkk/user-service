@@ -1,70 +1,123 @@
-# Getting Started with Create React App
+# Мое приложение для управления пользователями и группами
+Привет! Это мое React-приложение, которое я написал для управления сотрудниками и отделами. Тут можно добавлять людей, распределять их по группам, искать и сортировать.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Как запустить
 
-## Available Scripts
+bash
+## Скачиваем проект
+git clone <ссылка-на-репозиторий>
+cd user-group-app
 
-In the project directory, you can run:
+## Ставим все нужные пакеты
+npm install
 
-### `npm start`
+## Запускаем
+npm start
+После этого заходите в браузер на http://localhost:3000 и всё готово. Данные подгружаются с "сервера" (пока просто моковые, но структура позволяет легко подключить настоящий бэкенд).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Я сделал три страницы:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Главная
+Просто приветствие и краткое описание. Ничего сложного.
 
-### `npm test`
+### Пользователи (тут я всё писал сам)
+Самая интересная страница. Таблица с сотрудниками, где можно:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Сортировать — кликаешь на заголовок (имя, почта, должность, группа) и список перестраивается. Если кликнуть еще раз — сортировка в обратном порядке.
 
-### `npm run build`
+Искать — поиск работает сразу, как печатаешь. Но чтобы не дергать код на каждую букву, я сделал задержку (debounce) 300мс. Иначе браузер будет тормозить.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Добавлять — кнопка снизу, открывается форма.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Редактировать — карандашик в таблице.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Удалять — корзинка, но сначала спрашивает "ты уверен?".
 
-### `npm run eject`
+### Группы (эту страницу помогла сделать нейросеть)
+Тут всё в виде карточек. Каждая группа — это карточка с названием, описанием и списком участников. Для групп без сотрудников показывается "пусто", а для людей без группы есть отдельная серая карточка внизу.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Как я это делал и что понял
+В задании попросили одну страницу сделать самому, а вторую — с помощью LLM (я использовал deepseek). Честно говоря, получился интересный опыт.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Страница пользователей (писал сам)
+Это было не быстро. Я сидел и думал:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Как лучше сделать сортировку? Через useMemo, чтобы не пересчитывать при каждом рендере.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Как организовать код? Вынес таблицу в отдельный компонент, форму добавления — тоже.
 
-## Learn More
+Где хранить состояние? На уровне страницы, а в таблицу передавать только готовые данные.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Что получилось хорошо:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Сортировка летает, даже если тысяча записей — useMemo кэширует результат.
 
-### Code Splitting
+Поиск не дергает лишний раз стейт благодаря useDebounce.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Код понятный, легко потом допиливать.
 
-### Analyzing the Bundle Size
+### Что было сложно:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Долго мучился с оптимизацией. Сначала каждый ввод в поиске тормозил, потом разобрался с debounce.
 
-### Making a Progressive Web App
+Пришлось переписывать сортировку раза три, чтобы работала и с группами (там же не просто id, а название нужно показывать).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Страница групп (помогала нейросеть)
+Тут я просто написал: "сделай карточки для групп, покажи участников, добавь отдельно людей без группы". И нейросеть выдала код минуты за 3.
 
-### Advanced Configuration
+### Что удивило:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Она сразу предложила использовать useMemo для подсчета участников — я бы и сам так сделал, но приятно, что учла.
 
-### Deployment
+Структура компонентов разумная: GroupList и GroupCard.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+CSS-стили с градиентами — красиво, я бы так сходу не придумал.
 
-### `npm run build` fails to minify
+Но не всё гладко:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Пришлось править импорты и подгонять под мои данные.
+
+Код местами избыточный — например, передавала пропсы, которые не использовались.
+
+Без проверки могли быть ошибки (один раз сгенерировала несуществующий хук).
+
+## Мои выводы
+
+### Когда лучше писать самому
+Если это ключевая логика, которая будет часто меняться.
+
+Когда нужно точно контролировать производительность.
+
+Для обучения — ручная работа прокачивает навыки.
+
+### Когда можно попросить нейросеть
+Для типовых компонентов (карточки, списки, формы).
+
+Когда нужно быстро сделать прототип.
+
+Для вдохновения — иногда LLM предлагает идеи, до которых сам не додумался бы.
+
+### Что я для себя решил
+В следующих проектах буду делать так:
+
+Быстро набрасываю структуру с помощью нейросети (экономит кучу времени).
+
+Сам допиливаю сложные моменты и оптимизацию.
+
+Проверяю всё, что сгенерировано — доверяй, но проверяй.
+
+## Что внутри под капотом
+React — ну куда без него.
+
+React Router — чтобы переключаться между страницами.
+
+Хуки: useState, useEffect, useMemo, useCallback — куча всего.
+
+Самописный useDebounce, useLocalStorage — для поиска, для хранения на сервере.
+
+React.memo — чтобы компоненты не перерисовывались попусту.
+
+Чистый CSS — без фреймворков, просил нейронку базовую написать, потом поправлял.
+
+
+
